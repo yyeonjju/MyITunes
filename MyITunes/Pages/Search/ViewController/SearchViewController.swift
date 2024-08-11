@@ -22,7 +22,6 @@ struct ItunesSearchResult : Decodable {
 
 final class SearchViewController : UIViewController {
     // MARK: - UI
-    private let searchBar = UISearchBar()
     private let viewManager = SearchView()
     
     // MARK: - Properties
@@ -38,18 +37,31 @@ final class SearchViewController : UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .white
-        navigationItem.titleView = searchBar
+        navigationItem.titleView = viewManager.searchBar
+        viewManager.tableView.register(SearchResultTableViewCell.self, forCellReuseIdentifier: SearchResultTableViewCell.description())
         
         setupBind()
     }
     
     // MARK: - Bind
     private func setupBind() {
+        let searchButtonTap = PublishSubject<Void>()
+        let inputText = PublishSubject<String>()
+        viewManager.searchBar.rx.searchButtonClicked
+            .bind(to: searchButtonTap)
+            .disposed(by: disposeBag)
+        viewManager.searchBar.rx.text.orEmpty
+            .bind(to: inputText)
+            .disposed(by: disposeBag)
         
-        let input = SearchViewModel.Input()
+        
+        
+        let input = SearchViewModel.Input(
+            searchButtonTap: searchButtonTap,
+            inputText: inputText
+        )
         let output = vm.transform(input: input)
         
-        viewManager.tableView.register(SearchResultTableViewCell.self, forCellReuseIdentifier: SearchResultTableViewCell.description())
         
         output.serchResult
             .bind(to: viewManager.tableView.rx.items(cellIdentifier: SearchResultTableViewCell.description(), cellType: SearchResultTableViewCell.self)) { (row, element, cell : SearchResultTableViewCell) in

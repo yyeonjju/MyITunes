@@ -11,6 +11,7 @@ import SnapKit
 final class SearchView : UIView{
     // MARK: - UI
 
+    let searchBar = UISearchBar()
     let tableView = {
         let tv = UITableView()
         tv.rowHeight = 70
