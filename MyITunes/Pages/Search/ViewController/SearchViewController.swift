@@ -76,7 +76,7 @@ final class SearchViewController : UIViewController {
         
         
         viewManager.tableView.rx.modelSelected(ItunesSearchResult.self)
-            .subscribe(with:self) {owner, selectedModel in
+            .bind(with:self) {owner, selectedModel in
                 let vc = DetailInformationViewController()
                 vc.detailData = selectedModel
                 owner.navigationController?.pushViewController(vc, animated: true)
@@ -99,6 +99,14 @@ final class SearchViewController : UIViewController {
             .bind(to: viewManager.searchHistoryTableView.rx.isHidden)
             .disposed(by: disposeBag)
         
+        
+        //검색 키워드 히스토리의 셀을 클릭했을 때
+        viewManager.searchHistoryTableView.rx.modelSelected(String.self)
+            .bind(with:self) {owner, keyword in
+                inputText.onNext(keyword)
+                searchButtonTap.onNext(())
+            }
+            .disposed(by: disposeBag)
     }
 
 }
