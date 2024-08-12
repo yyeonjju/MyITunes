@@ -39,6 +39,7 @@ final class SearchViewController : UIViewController {
         view.backgroundColor = .white
         navigationItem.titleView = viewManager.searchBar
         viewManager.tableView.register(SearchResultTableViewCell.self, forCellReuseIdentifier: SearchResultTableViewCell.description())
+        viewManager.searchHistoryTableView.register(SearchHistoryTableViewCell.self, forCellReuseIdentifier: SearchHistoryTableViewCell.description())
         
         setupBind()
     }
@@ -63,6 +64,8 @@ final class SearchViewController : UIViewController {
         let output = vm.transform(input: input)
         
         
+        
+        //검색결과
         output.serchResult
             .bind(to: viewManager.tableView.rx.items(cellIdentifier: SearchResultTableViewCell.description(), cellType: SearchResultTableViewCell.self)) { (row, element, cell : SearchResultTableViewCell) in
                 
@@ -72,6 +75,29 @@ final class SearchViewController : UIViewController {
             .disposed(by: disposeBag)
         
         
+        viewManager.tableView.rx.modelSelected(ItunesSearchResult.self)
+            .subscribe(with:self) {owner, selectedModel in
+                let vc = DetailInformationViewController()
+                vc.detailData = selectedModel
+                owner.navigationController?.pushViewController(vc, animated: true)
+            }
+            .disposed(by: disposeBag)
+        
+        
+        
+        //검색 키워드 히스토리
+        output.keywordHistory
+            .bind(to: viewManager.searchHistoryTableView.rx.items(cellIdentifier: SearchHistoryTableViewCell.description(), cellType: SearchHistoryTableViewCell.self)) { (row, element, cell : SearchHistoryTableViewCell) in
+                
+                cell.confiureData(keyword: element)
+                
+            }
+            .disposed(by: disposeBag)
+        
+        output.showkeywordHistory
+            .map{!$0}
+            .bind(to: viewManager.searchHistoryTableView.rx.isHidden)
+            .disposed(by: disposeBag)
         
     }
 

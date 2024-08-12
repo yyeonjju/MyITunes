@@ -17,6 +17,15 @@ final class SearchView : UIView{
         tv.rowHeight = 70
         return tv
     }()
+    
+    let searchHistoryTableView = {
+        let tv = UITableView()
+        tv.rowHeight = 40
+        tv.backgroundColor = .systemGray6
+        
+        return tv
+    }()
+    
 
     // MARK: - Initializer
     override init(frame : CGRect) {
@@ -33,7 +42,7 @@ final class SearchView : UIView{
     
     // MARK: - ConfigureUI
     private func configureSubView() {
-        [tableView]
+        [tableView, searchHistoryTableView]
             .forEach{
                 addSubview($0)
             }
@@ -43,6 +52,10 @@ final class SearchView : UIView{
 
         
         tableView.snp.makeConstraints { make in
+            make.edges.equalTo(safeAreaLayoutGuide)
+        }
+        
+        searchHistoryTableView.snp.makeConstraints { make in
             make.edges.equalTo(safeAreaLayoutGuide)
         }
     }

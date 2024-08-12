@@ -13,6 +13,7 @@ enum APIError : Error{
     case invalidUrl
     case unknownResponse
     case satusCode
+    case decodeFail
 }
 
 
@@ -22,7 +23,6 @@ final class NetworkManager {
     
 
     func getItunesData(query : String) -> Single<ItunesSearchModel> {
-        
         let url = "https://itunes.apple.com/search?term=\(query)&limit=5"
         
         let boxofficeResult = Single<ItunesSearchModel>.create { single in
@@ -44,13 +44,15 @@ final class NetworkManager {
                 
                 if let data = data, let decodeddata = try? JSONDecoder().decode(ItunesSearchModel.self, from: data) {
                     single(.success(decodeddata))
+                } else{
+                    single(.failure(APIError.decodeFail))
                 }
             }
             .resume()
             
             return Disposables.create()
         }
-//            .debug("💜boxofficeResult💜")
+            .debug("💜boxofficeResult💜")
         
         
         return boxofficeResult
